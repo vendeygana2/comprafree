@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Diamantes Free Fire</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0; /* Elimina el margen predeterminado del body */
+            background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbd6CYFvIaGJR7eWiE8C5O90bTBcrs9OUmcw&s"); /* URL de la imagen de fondo */
+            background-size: cover; /* Cubre todo el fondo */
+            background-position: center; /* Centra la imagen */
+            background-repeat: no-repeat; /* Evita que la imagen se repita */
+            background-attachment: fixed; /* Fija la imagen al fondo al hacer scroll */
+            height: 100vh; /* Asegura que el fondo cubra toda la altura de la pantalla */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Centra el contenido verticalmente */
+            align-items: center; /* Centra el contenido horizontalmente */
+            color: white; /* Color de texto blanco para mejor contraste */
+        }
+        .logo-container {
+            margin-bottom: 20px;
+        }
+        .logo {
+            width: 100px;
+            height: auto;
+        }
+        .container {
+            display: inline-block;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.8); /* Fondo blanco con transparencia */
+            color: black; /* Texto negro para mejor legibilidad sobre el fondo transparente */
+        }
+        select, input {
+            margin: 10px;
+            padding: 8px;
+            width: 80%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #000;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 25px;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #333;
+        }
+        textarea {
+            width: 90%;
+            height: 120px;
+            margin-top: 10px;
+            padding: 10px;
+            resize: none;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        #lista-pedidos {
+            text-align: left;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #eee;
+        }
+        .item-pedido {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .eliminar-item {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 15px;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+        .eliminar-item:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="logo-container">
+        <img src="freefire_logo.png" alt="Logo Free Fire" class="logo">
+    </div>
+
+    <div class="container">
+        <h2>Calculadora de Diamantes Free Fire</h2>
+        <label for="diamantes">Seleccione los diamantes:</label><br>
+
+        <select id="diamantes">
+            <option value="0.70" data-name="100 diamantes">100 diamantes - $0.70</option>
+            <option value="2.10" data-name="310 diamantes">310 diamantes - $2.10</option>
+            <option value="3.45" data-name="520 diamantes">520 diamantes - $3.45</option>
+            <option value="6.90" data-name="1060 diamantes">1060 diamantes - $6.90</option>
+            <option value="13.50" data-name="2180 diamantes">2180 diamantes - $13.50</option>
+            <option value="19.00" data-name="5600 diamantes">5600 diamantes - $19.00</option>
+        </select>
+
+        <label for="cantidad">Ingrese cantidad:</label><br>
+        <input type="number" id="cantidad" min="1" value="1">
+
+        <button onclick="agregarMonto()">Añadir al pedido</button>
+
+        <div id="lista-pedidos">
+            <h3>Pedido Actual:</h3>
+        </div>
+
+        <button onclick="calcularTotal()">Calcular total</button>
+
+        <h3>Total: $<span id="total">0.00</span></h3>
+
+        <textarea id="mensaje" readonly></textarea><br>
+        <button onclick="copiarTexto()">📋 Copiar Mensaje</button>
+        <button onclick="enviarWhatsApp('69548250')">📱 Free Fire 1</button>
+        <button onclick="enviarWhatsApp('61838611')">📱 Free Fire 2</button>
+    </div>
+
+    <script>
+        let totalFinal = 0;
+        let listaPedidoItems = [];
+        const listaPedidosDiv = document.getElementById("lista-pedidos");
+
+        function agregarMonto() {
+            let seleccionado = document.getElementById("diamantes").selectedOptions[0];
+            let cantidad = parseInt(document.getElementById("cantidad").value);
+            let precio = parseFloat(seleccionado.value);
+            let nombre = seleccionado.getAttribute("data-name");
+            let subtotal = precio * cantidad;
+            const itemPedido = {
+                nombre: nombre,
+                cantidad: cantidad,
+                precioUnitario: precio,
+                subtotal: subtotal
+            };
+            listaPedidoItems.push(itemPedido);
+            actualizarListaPedidos();
+            actualizarMensaje();
+        }
+
+        function eliminarItem(index) {
+            const itemEliminado = listaPedidoItems.splice(index, 1)[0];
+            totalFinal -= itemEliminado.subtotal;
+            actualizarListaPedidos();
+            actualizarTotal();
+            actualizarMensaje();
+        }
+
+        function actualizarListaPedidos() {
+            listaPedidosDiv.innerHTML = "<h3>Pedido Actual:</h3>";
+            listaPedidoItems.forEach((item, index) => {
+                const itemDiv = document.createElement("div");
+                itemDiv.classList.add("item-pedido");
+                itemDiv.innerHTML = `<span>🔥 ${item.nombre} x${item.cantidad} - $${item.subtotal.toFixed(2)}</span>
+                                     <button class="eliminar-item" onclick="eliminarItem(${index})">Eliminar</button>`;
+                listaPedidosDiv.appendChild(itemDiv);
+            });
+        }
+
+        function calcularTotal() {
+            totalFinal = listaPedidoItems.reduce((sum, item) => sum + item.subtotal, 0);
+            actualizarTotal();
+            actualizarMensaje();
+        }
+
+        function actualizarTotal() {
+            document.getElementById("total").innerText = totalFinal.toFixed(2);
+        }
+
+        function actualizarMensaje() {
+            let listaTexto = listaPedidoItems.map(item => `🔥 ${item.nombre} x${item.cantidad} - $${item.subtotal.toFixed(2)}`).join('\n');
+            let mensajeWhatsApp = `📢 *POR FAVOR SOLICITO ESTOS DIAMANTES:*\n\n📌 *Pedido de diamantes Free Fire:*\n${listaTexto}\n💰 *Total a pagar:* $${totalFinal.toFixed(2)}`;
+            document.getElementById("mensaje").value = mensajeWhatsApp;
+        }
+
+        function copiarTexto() {
+            let mensaje = document.getElementById("mensaje");
+            mensaje.select();
+            document.execCommand("copy");
+            alert("✅ Mensaje copiado, ahora envíalo por WhatsApp!");
+        }
+
+        function enviarWhatsApp(numero) {
+            let mensaje = document.getElementById("mensaje").value;
+            let numeroWhatsApp = "+591" + numero;
+            let urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+            window.open(urlWhatsApp, '_blank');
+        }
+
+        // Inicializar la lista de pedidos visual
+        actualizarListaPedidos();
+    </script>
+
+</body>
+</html>
